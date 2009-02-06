@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>test</title>
+		<script type="text/javascript" src="./javascripts/prototype.js"></script>
+		<script type="text/javascript" src="./javascripts/lowpro.js"></script>
+		<script type="text/javascript" src="../dist/popup_handler.js"></script>
+		<script type="text/javascript">
+//<![CDATA[
+Event.addBehavior({
+	'a#popper:click': function(event) {
+		var popup = new Popup.Base('popup.html', 'mypopup');
+		popup.handle.focus();
+		event.stop();
+	}
+});
+//]]>
+		</script>
+	</head>
+	<body>
+		<p><a href="#" id="popper">Pop me up</a></p>
+		<p><a href="test.html">Then go here</a></p>
+	</body>
+</html>

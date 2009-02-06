@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>test</title>
+		<script type="text/javascript" src="./javascripts/prototype.js"></script>
+		<script type="text/javascript" src="./javascripts/lowpro.js"></script>
+		<script type="text/javascript" src="../dist/popup_handler.js"></script>
+		<script type="text/javascript">
+//<![CDATA[
+Event.addBehavior({
+	'a#poster:click': function(event) {
+		event.stop();
+		var value = $('writer').getValue();
+		if (!value.blank()) {
+			var handle = Popup.handleFor('mypopup');
+			if (handle) {
+				$(handle.document.body).insert({bottom: $p(value)});
+				handle.focus();
+			} else {
+				if (confirm("no popup here\nwant to go back?")) {
+					window.location.href = 'index.html';
+				}
+			}
+		}
+	},
+	
+	'a#closer:click': function(event) {
+		event.stop();
+		var handle = Popup.handleFor('mypopup');
+		if (handle) {
+			handle.focus();
+			if (handle.confirm('sure?')) handle.API.close();
+		} else {
+			alert('it\'s already closed!')
+		}
+	},
+	
+	'a#colorer:click': function(event) {
+		event.stop();
+		var handle = Popup.handleFor('mypopup');
+		if (handle) {
+			var isRed = handle.API.toggleRed();
+			if (isRed) this.innerHTML = 'Click to unred';
+			else this.innerHTML = 'Click to turn red'
+			handle.focus();
+		} else {
+			alert('not there man');
+		}
+	}
+});
+//]]>
+		</script>
+	</head>
+	<body>
+		<p>
+			<label for="writer">Type in something</label><br/>
+			<input type="text" id="writer" name="writer"/>
+		</p>
+		<p><a href="#" id="poster">Click to write to popup</a></p>
+		<p><a href="#" id="closer">Click to close popup</a></p>
+		<p><a href="#" id="colorer">Click to turn red</a></p>
+	</body>
+</html>
