@@ -44,7 +44,9 @@ var Popup = {
 	
 	handleFor: function(name) {
 		if (Popup.isActive(name)) {
-			return window.open('', name);
+			var url = '';
+			if (Prototype.IE && parseFloat(navigator.appVersion.split('MSIE')[1]) >= 7) url = '#';
+			return window.open(url, name);
 		}
 		return null;
 	},
