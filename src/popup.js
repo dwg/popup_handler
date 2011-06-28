@@ -15,13 +15,25 @@ var Popup = {
 			directories: false
 		}
 	},
+
+	windows: {},
 	
 	isActive: function(name) {
+		if (Prototype.Browser.Opera) {
+			var handle = window.open('', name);
+			if (handle.document.body.innerHTML.blank()) {
+				handle.close();
+				return false;
+			}
+			return true;
+		}
 		return !!Cookie.read(Popup._cookieName(name));
 	},
 	
 	makeActive: function(name) {
-		Cookie.write(Popup._cookieName(name), 'true');
+		if (!Prototype.Browser.Opera) {
+			Cookie.write(Popup._cookieName(name), 'true');
+		}
 	},
 	
 	_cookieName: function(name) {
@@ -31,21 +43,22 @@ var Popup = {
 	register: function() {
 		if (window.name) {
 			Popup.makeActive(window.name);
-			// Note: only tested in IE6+ and FF2+
-			window.onbeforeunload = function() {
-				Popup.unregister();
-			};
+			Event.observe(window, 'unload', Popup.unregister);
 		}
 	},
 	
 	unregister: function() {
-		if (window.name) Cookie.expire(Popup._cookieName(window.name));
+		if (window.name) {
+			if (!Prototype.Browser.Opera) Cookie.expire(Popup._cookieName(window.name));
+			Popup.windows[window.name] = null;
+		}
 	},
 	
 	handleFor: function(name) {
 		if (Popup.isActive(name)) {
 			var url = '';
-			if (Prototype.IE && parseFloat(navigator.appVersion.split('MSIE')[1]) >= 7) url = '#';
+			// TODO: investigate why this is needed for some IE7s and not others
+      // if (Prototype.IE && parseFloat(navigator.appVersion.split('MSIE')[1]) >= 7) url = '#';
 			return window.open(url, name);
 		}
 		return null;
@@ -57,14 +70,19 @@ var Popup = {
 			this.name = name;
 			this.options = Object.extend(Object.extend({}, Popup.defaultOptions), options);
 			this.open();
+			Popup.windows[name] = this;
 		},
 		
 		open: function() {
 			this.handle = Popup.handleFor(this.name);
 			if (!this.handle) {
 				this.handle = window.open(this.url, this.name, this._windowOptions(), true);
-				Popup.makeActive(this.name);
+				if (this.handle.Popup) {
+					this.handle.Popup.register();
+					Popup.makeActive(this.name);
+				}
 			}
+			this.handle.focus();
 		},
 		
 		_windowOptions: function() {
@@ -80,6 +98,12 @@ var Popup = {
 				return kv.first() + '=' + (kv.last() ? 'yes' : 'no');
 			}).join(',');
 			return [dimensions, position, features].join(',');
+		},
+
+		onCallback: function(method) {
+			if (this.options[method]) {
+				this.options[method]($A(arguments).slice(1));
+			}
 		}
 	})
 };

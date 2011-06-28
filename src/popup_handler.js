@@ -1,6 +1,6 @@
 PopupHandler = {
-	Version: '0.1',
-	CompatibleWithPrototype: '1.6'
+	Version: '0.2',
+	CompatibleWithPrototype: '1.7'
 };
 
 if (Prototype.Version.indexOf(PopupHandler.CompatibleWithPrototype) != 0 && window.console && window.console.warn)
