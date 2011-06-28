@@ -1,3 +1,37 @@
+PopupHandler = {
+	Version: '0.2',
+	CompatibleWithPrototype: '1.7'
+};
+
+if (Prototype.Version.indexOf(PopupHandler.CompatibleWithPrototype) != 0 && window.console && window.console.warn)
+  console.warn("This version of Popup Handler is tested with Prototype " + PopupHandler.CompatibleWithPrototype +
+                  " it may not work as expected with this version (" + Prototype.Version + ")");
+
+var Cookie = {
+	write: function(name, value) {
+		var expiresAt = '';
+		if (arguments.length > 2) {
+			var date = new Date();
+			date.setTime(date.getTime() + arguments[2]*24*60*60*1000);
+			expiresAt = '; expires=' + date.toGMTString();
+		}
+		document.cookie = name + '=' + value + expiresAt + '; path=/';
+	},
+
+	read: function(name) {
+		var cookie = document.cookie.split(';').invoke('strip').find(function(c) {
+			return c.startsWith(name);
+		});
+		if (cookie) {
+			return cookie.substring(cookie.indexOf(name + '=') + 1);
+		}
+		return '';
+	},
+
+	expire: function(name) {
+		Cookie.write(name, '', -1);
+	}
+};
 var Popup = {
 	defaultOptions: {
 		width: 500,
@@ -17,7 +51,7 @@ var Popup = {
 	},
 
 	windows: {},
-	
+
 	isActive: function(name) {
 		if (Prototype.Browser.Opera) {
 			var handle = window.open('', name);
@@ -29,31 +63,31 @@ var Popup = {
 		}
 		return !!Cookie.read(Popup._cookieName(name));
 	},
-	
+
 	makeActive: function(name) {
 		if (!Prototype.Browser.Opera) {
 			Cookie.write(Popup._cookieName(name), 'true');
 		}
 	},
-	
+
 	_cookieName: function(name) {
 		return 'popup_' + name + '_active';
 	},
-	
+
 	register: function() {
 		if (window.name && !Prototype.Browser.Opera) {
 			Popup.makeActive(window.name);
 			Event.observe(window, 'unload', Popup.unregister);
 		}
 	},
-	
+
 	unregister: function() {
 		if (window.name) {
 			if (!Prototype.Browser.Opera) Cookie.expire(Popup._cookieName(window.name));
 			Popup.windows[window.name] = null;
 		}
 	},
-	
+
 	handleFor: function(name) {
 		if (Popup.isActive(name)) {
 			var url = '';
@@ -63,7 +97,7 @@ var Popup = {
 		}
 		return null;
 	},
-	
+
 	Base: Class.create({
 		initialize: function(url, name, options) {
 			this.url = url;
@@ -72,7 +106,7 @@ var Popup = {
 			this.open();
 			Popup.windows[name] = this;
 		},
-		
+
 		open: function() {
 			this.handle = Popup.handleFor(this.name);
 			if (!this.handle) {
@@ -84,7 +118,7 @@ var Popup = {
 			}
 			this.handle.focus();
 		},
-		
+
 		_windowOptions: function() {
 			var left = this.options.left;
 			var top = this.options.top;
